@@ -18,7 +18,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE})
 set(APPLICATION_DIR_PATH ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 # 导入Qt相关依赖包
-find_package(Qt6 REQUIRED COMPONENTS Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Widgets SerialPort)
 
 # 生成版本信息头文件
 set(HEADER_FILE_INFO_VERSION_PATH ${CMAKE_SOURCE_DIR}/helper/InfoVersion.h)
@@ -87,6 +87,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt${QT_VERSION_MAJOR}::Widgets
+    Qt${QT_VERSION_MAJOR}::SerialPort
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES

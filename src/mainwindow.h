@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "serialportmanager.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -17,6 +18,8 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    void InitSerialPort();
+
 protected:
     void resizeEvent(QResizeEvent *event) override;
 
@@ -26,5 +29,7 @@ private:
     void setupCommandListWidget();
 
     QWidget *templateRow;
+
+    SerialPortManager m_serialPortManager;
 };
 #endif // MAINWINDOW_H

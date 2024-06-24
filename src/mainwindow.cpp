@@ -29,6 +29,8 @@ MainWindow::MainWindow(QWidget *parent)
             // 根据需要修改其他组件的数据
         }
     }
+
+    InitSerialPort();
 }
 
 MainWindow::~MainWindow()
@@ -41,4 +43,10 @@ void MainWindow::resizeEvent(QResizeEvent *event) {
     QWidget::resizeEvent(event);
     QSize newSize = event->size();
     qDebug() << "当前窗口大小：" << newSize.width() << " x " << newSize.height();
+}
+
+void MainWindow::InitSerialPort()
+{
+    QStringList ports = m_serialPortManager.GetSerialPortList();
+    qDebug() << ports;
 }
