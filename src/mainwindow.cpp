@@ -2,6 +2,9 @@
 #include "./ui_mainwindow.h"
 #include "commandlistitem.h"
 #include <QResizeEvent>
+#include <QFile>
+#include <QFileInfo>
+#include <QFileDialog>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -21,6 +24,8 @@ MainWindow::MainWindow(QWidget *parent)
     // 打开串口
     connect(ui->pushButtonSerialPortSwitch, &QPushButton::clicked, this, &MainWindow::SerialPortSwitch);
     connect(ui->pushButtonSend, &QPushButton::clicked, this, &MainWindow::SendData);
+    connect(ui->pushButtonClearInfo, &QPushButton::clicked, this, &MainWindow::ClearData);
+    connect(ui->pushButtonSaveLog, &QPushButton::clicked, this, &MainWindow::SaveReceiveData);
 }
 
 MainWindow::~MainWindow()
@@ -117,6 +122,8 @@ void MainWindow::InitialSerialPortSettings()
 
     // 禁用发送按钮
     ui->pushButtonSend->setEnabled(false);
+
+    SerialPortLogOutput("初始化串口配置\n", "info");
 }
 
 // 重写resizeEvent
@@ -154,6 +161,10 @@ void MainWindow::SerialPortSwitch()
             ui->pushButtonSerialPortSwitch->setText(tr("CloseSerialPort"));
 
             connect(m_serialPort, &QSerialPort::readyRead, this, &MainWindow::ReceiveData);
+
+            SerialPortLogOutput("打开串口" + ui->comboBoxSerialportName->currentText() + "\n", "info");
+        } else {
+            SerialPortLogOutput("打开串口" + ui->comboBoxSerialportName->currentText() + "失败,串口可能不存在或被占用\n", "error");
         }
     } else if(ui->pushButtonSerialPortSwitch->text() == tr("CloseSerialPort")) {
         m_serialPort->close();
@@ -167,6 +178,8 @@ void MainWindow::SerialPortSwitch()
         ui->pushButtonSerialPortSwitch->setText(tr("OpenSerialPort"));
 
         disconnect(m_serialPort, &QSerialPort::readyRead, this, &MainWindow::ReceiveData);
+
+        SerialPortLogOutput("关闭串口" + ui->comboBoxSerialportName->currentText() + "\n", "info");
     }
 }
 
@@ -197,10 +210,81 @@ void MainWindow::ReceiveData()
         ui->textEditOutput->insertPlainText(currentTime);
     }
 
-    ui->textEditOutput->insertPlainText(str);
+    if(ui->checkBoxShowRN->checkState() == 2) {
+        str += str + "\\r\\n";
+    }
+
+    if(ui->checkBoxShowHex->checkState() == 2) {
+        QString hexString;
+        for(auto i = str.begin(); i != str.end(); ++i) {
+            QChar c = *i;
+            hexString += QString("%1 ").arg(static_cast<quint8>(c.unicode()), 2, 16, QChar('0'));
+        }
+        ui->textEditOutput->insertPlainText(hexString.trimmed());
+    } else {
+        ui->textEditOutput->insertPlainText(str);
+    }
+
     ui->textEditOutput->moveCursor(QTextCursor::End);
 
     if(ui->checkBoxEnter->checkState() == 2) {
         ui->textEditOutput->insertPlainText("\n");
     }
+}
+
+void MainWindow::ClearData()
+{
+    ui->textEditOutput->clear();
+    ui->textEditSerialPortSettingOutput->clear();
+    ui->textEditInputString->clear();
+}
+
+void MainWindow::SaveReceiveData()
+{
+    QString saveLogPath = QFileDialog::getSaveFileName(this, NULL, qAppName() + "_" +
+                            QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss") + ".txt",
+                                                       "文本文件(*.txt);;所有文件(*.*)");
+
+    if(saveLogPath.isEmpty())
+        return;
+
+    QString messageAll = ui->textEditOutput->toPlainText();
+
+    QFile file(saveLogPath);
+
+    if(file.open(QIODevice::WriteOnly)) {
+        file.write(messageAll.toUtf8());
+        file.close();
+    } else {
+        // 失败
+        SerialPortLogOutput("接收文件保存失败\n", "error");
+    }
+}
+
+void MainWindow::SerialPortLogOutput(QString str, QString level)
+{
+    QDateTime currentDateTime = QDateTime::currentDateTime();
+    QString currentTime = currentDateTime.toString("[yyyy-MM-dd hh:mm:ss.zzz]: ");
+
+    QTextCharFormat format;
+
+    if(level == tr("info")) {
+        format.setForeground(Qt::black); // 绿色
+    } else if (level == tr("warn")) {
+        format.setForeground(Qt::yellow); // 黄色
+    } else if(level == tr("error")) {
+        format.setForeground(Qt::red); // 红色
+    } else {
+        format.setForeground(Qt::black);
+    }
+
+    QTextCursor cursor = ui->textEditSerialPortSettingOutput->textCursor();
+    cursor.movePosition(QTextCursor::End); // 移动到文本末尾
+
+    if (ui->checkBoxShowTime->checkState() == 2) {
+        cursor.insertText(currentTime, format); // 插入时间戳并应用格式
+    }
+
+    cursor.insertText(str, format); // 插入文本并应用格式
+    ui->textEditSerialPortSettingOutput->setTextCursor(cursor); // 更新文本光标
 }

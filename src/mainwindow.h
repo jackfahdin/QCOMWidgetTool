@@ -5,6 +5,8 @@
 #include <QSerialPort>
 #include <QSerialPortInfo>
 #include <QDateTime>
+#include <QFile>
+#include <QFileInfo>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -32,6 +34,8 @@ private:
     void setupCommandListWidget();
     void SetupDefaultSerialPortSettings();
 
+    void SerialPortLogOutput(QString str, QString level);
+
     QWidget *templateRow;
 
     QSerialPort *m_serialPort;
@@ -41,7 +45,7 @@ private slots:
     void SerialPortSwitch();
     void SendData();
     void ReceiveData();
-    // void ClearData();
-    // void SaveReceiveData();
+    void ClearData();
+    void SaveReceiveData();
 };
 #endif // MAINWINDOW_H
