@@ -222,7 +222,7 @@ void MainWindow::ReceiveData()
     }
 
     if(ui->checkBoxShowRN->checkState() == 2) {
-        str += str + "\\r\\n";
+        str += "\\r\\n";
     }
 
     if(ui->checkBoxShowHex->checkState() == 2) {
