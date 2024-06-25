@@ -178,16 +178,29 @@ void MainWindow::SendData()
         return;
 
     sendMsg.remove(' ');
+
+
     m_serialPort->write(sendMsg.toUtf8());
 }
 
 void MainWindow::ReceiveData()
 {
     QByteArray receiveBuf = m_serialPort->readAll();
+    QDateTime currentDateTime = QDateTime::currentDateTime();
+    QString currentTime = currentDateTime.toString("[yyyy-MM-dd hh:mm:ss.zzz]: ");
+    QString str = QString::fromUtf8(receiveBuf);
 
-    if(!receiveBuf.isEmpty()) {
-        QString str = QString::fromUtf8(receiveBuf);
-        ui->textEditOutput->insertPlainText(str);
-        ui->textEditOutput->moveCursor(QTextCursor::End);
+    if(receiveBuf.isEmpty())
+        return;
+
+    if (ui->checkBoxShowTime->checkState() == 2) {
+        ui->textEditOutput->insertPlainText(currentTime);
+    }
+
+    ui->textEditOutput->insertPlainText(str);
+    ui->textEditOutput->moveCursor(QTextCursor::End);
+
+    if(ui->checkBoxEnter->checkState() == 2) {
+        ui->textEditOutput->insertPlainText("\n");
     }
 }
