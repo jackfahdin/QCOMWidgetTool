@@ -7,6 +7,7 @@
 #include <QDateTime>
 #include <QFile>
 #include <QFileInfo>
+#include "usbplugandunplug.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -41,6 +42,8 @@ private:
     QWidget *templateRow;
 
     QSerialPort *m_serialPort;
+
+    USBPlugAndUnplug *m_usbPlugAndUnplug = nullptr;
 
 private slots:
     // void filterSerialPortList(QStringList serialPortList);

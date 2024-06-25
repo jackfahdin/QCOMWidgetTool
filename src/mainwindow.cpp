@@ -20,7 +20,8 @@ MainWindow::MainWindow(QWidget *parent)
     InitialSerialPortSettings();
 
     m_serialPort = new QSerialPort();
-
+    m_usbPlugAndUnplug = new USBPlugAndUnplug();
+    qApp->installNativeEventFilter(m_usbPlugAndUnplug);
     // 打开串口
     connect(ui->pushButtonSerialPortSwitch, &QPushButton::clicked, this, &MainWindow::SerialPortSwitch);
     connect(ui->pushButtonSend, &QPushButton::clicked, this, &MainWindow::SendData);
