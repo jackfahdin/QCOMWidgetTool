@@ -14,16 +14,17 @@ bool USBPlugAndUnplug::nativeEventFilter(const QByteArray &eventType, void *mess
     int msgType = msg->message;
     if (msgType == WM_DEVICECHANGE)
     {
+        PDEV_BROADCAST_HDR lpdb = (PDEV_BROADCAST_HDR)msg->lParam;
         switch (msg->wParam) {
         case DBT_DEVICEARRIVAL:
-            qDebug() << "Detected USB device insertion.";
+            if(DBT_DEVTYP_PORT == lpdb->dbch_devicetype) {
+                Q_EMIT UsbSerialPortArrival();
+            }
             break;
         case DBT_DEVICEREMOVECOMPLETE:
-            qDebug() << "Detected USB device removal.";
-            break;
-        case DBT_DEVNODES_CHANGED:
-            qDebug() << "Detected USB device status change.";
-            emit UsbStatusChange();
+            if(DBT_DEVTYP_PORT == lpdb->dbch_devicetype) {
+                Q_EMIT UsbSerialPortRemoveCompleft();
+            }
             break;
         default:
             break;

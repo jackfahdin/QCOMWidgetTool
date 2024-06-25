@@ -31,8 +31,7 @@ private:
 
     int AddCommandList(int index);
     void InitialSerialPortSettings();
-
-    void SerialPortDetails(int index);
+    void RefreshSerialPortName();
 
     void setupCommandListWidget();
     void SetupDefaultSerialPortSettings();
@@ -46,7 +45,6 @@ private:
     USBPlugAndUnplug *m_usbPlugAndUnplug = nullptr;
 
 private slots:
-    // void filterSerialPortList(QStringList serialPortList);
     void SerialPortSwitch();
     void SendData();
     void ReceiveData();

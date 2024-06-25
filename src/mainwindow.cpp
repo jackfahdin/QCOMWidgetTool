@@ -27,6 +27,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->pushButtonSend, &QPushButton::clicked, this, &MainWindow::SendData);
     connect(ui->pushButtonClearInfo, &QPushButton::clicked, this, &MainWindow::ClearData);
     connect(ui->pushButtonSaveLog, &QPushButton::clicked, this, &MainWindow::SaveReceiveData);
+
+    connect(m_usbPlugAndUnplug, &USBPlugAndUnplug::UsbSerialPortArrival, this, &MainWindow::RefreshSerialPortName);
+    connect(m_usbPlugAndUnplug, &USBPlugAndUnplug::UsbSerialPortRemoveCompleft, this, &MainWindow::RefreshSerialPortName);
 }
 
 MainWindow::~MainWindow()
@@ -59,7 +62,7 @@ int MainWindow::AddCommandList(int index)
     return 0;
 }
 
-void MainWindow::InitialSerialPortSettings()
+void MainWindow::RefreshSerialPortName()
 {
     QString serialPortName;
     QString portName;
@@ -67,6 +70,9 @@ void MainWindow::InitialSerialPortSettings()
     QString manufacturer;
     QString serialNumber;
     static const char blankString[] = QT_TRANSLATE_NOOP("SettingsDialog", "N/A");
+
+    ui->comboBoxSerialportName->clear();
+
     const auto serialPortInfos = QSerialPortInfo::availablePorts();
     for(const QSerialPortInfo &serialPortInfo : serialPortInfos) {
         portName = serialPortInfo.portName();
@@ -74,7 +80,7 @@ void MainWindow::InitialSerialPortSettings()
         manufacturer = serialPortInfo.manufacturer();
         serialNumber = serialPortInfo.serialNumber();
         serialPortName = serialPortInfo.portName() + " (" +
-                       (!description.isEmpty() ? description : blankString) + ")";
+                         (!description.isEmpty() ? description : blankString) + ")";
         ui->comboBoxSerialportName->addItem(serialPortName);
 #if 0
                        << (!manufacturer.isEmpty() ? manufacturer : blankString)
@@ -86,7 +92,11 @@ void MainWindow::InitialSerialPortSettings()
                                ? QString::number(serialPortInfo.productIdentifier(), 16) : blankString);
 #endif
     }
+}
 
+void MainWindow::InitialSerialPortSettings()
+{
+    RefreshSerialPortName();
     // 设置波特率
     ui->comboBoxBaudRate->addItem(QStringLiteral("1200"), QSerialPort::Baud1200);
     ui->comboBoxBaudRate->addItem(QStringLiteral("2400"), QSerialPort::Baud2400);
@@ -130,17 +140,15 @@ void MainWindow::resizeEvent(QResizeEvent *event) {
     // qDebug() << "当前窗口大小：" << newSize.width() << " x " << newSize.height();
 }
 
-void MainWindow::SerialPortDetails(int index)
-{
-
-}
-
 void MainWindow::SerialPortSwitch()
 {
     if(ui->pushButtonSerialPortSwitch->text() == tr("OpenSerialPort")) {
+        const auto serialPortInfos = QSerialPortInfo::availablePorts();
 
         // 获取串口名称
-        m_serialPort->setPort(QSerialPortInfo::availablePorts()[ui->comboBoxSerialportName->currentIndex()]);
+        if (!serialPortInfos.isEmpty())
+            m_serialPort->setPort(serialPortInfos[ui->comboBoxSerialportName->currentIndex()]);
+        // m_serialPort->setPort(QSerialPortInfo::availablePorts()[ui->comboBoxSerialportName->currentIndex()]);
         // 获取波特率
         m_serialPort->setBaudRate(static_cast<QSerialPort::BaudRate>(ui->comboBoxBaudRate->currentData().toInt()));
         // 获取数据位

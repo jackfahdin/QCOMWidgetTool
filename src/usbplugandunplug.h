@@ -17,7 +17,8 @@ protected:
     bool nativeEventFilter(const QByteArray &eventType, void *message, qintptr *result) override;
 
 signals:
-    void UsbStatusChange();
+    void UsbSerialPortArrival();
+    void UsbSerialPortRemoveCompleft();
 };
 
 #endif // USBPLUGANDUNPLUG_H
