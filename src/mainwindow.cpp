@@ -60,7 +60,7 @@ int MainWindow::AddCommandList(int index)
 
 void MainWindow::InitialSerialPortSettings()
 {
-    QStringList serialPortList;
+    QString serialPortName;
     QString portName;
     QString description;
     QString manufacturer;
@@ -72,9 +72,10 @@ void MainWindow::InitialSerialPortSettings()
         description = serialPortInfo.description();
         manufacturer = serialPortInfo.manufacturer();
         serialNumber = serialPortInfo.serialNumber();
-        serialPortList << serialPortInfo.portName();
+        serialPortName = serialPortInfo.portName() + " (" +
+                       (!description.isEmpty() ? description : blankString) + ")";
+        ui->comboBoxSerialportName->addItem(serialPortName);
 #if 0
-                       << (!description.isEmpty() ? description : blankString);
                        << (!manufacturer.isEmpty() ? manufacturer : blankString)
                        << (!serialNumber.isEmpty() ? serialNumber : blankString)
                        << serialPortInfo.systemLocation()
@@ -83,11 +84,6 @@ void MainWindow::InitialSerialPortSettings()
                        << (serialPortInfo.productIdentifier()
                                ? QString::number(serialPortInfo.productIdentifier(), 16) : blankString);
 #endif
-    }
-
-    ui->comboBoxSerialportName->clear();
-    for(const QString &portName : serialPortList) {
-        ui->comboBoxSerialportName->addItem(portName);
     }
 
     // 设置波特率
@@ -133,11 +129,17 @@ void MainWindow::resizeEvent(QResizeEvent *event) {
     // qDebug() << "当前窗口大小：" << newSize.width() << " x " << newSize.height();
 }
 
+void MainWindow::SerialPortDetails(int index)
+{
+
+}
+
 void MainWindow::SerialPortSwitch()
 {
     if(ui->pushButtonSerialPortSwitch->text() == tr("OpenSerialPort")) {
+
         // 获取串口名称
-        m_serialPort->setPortName(ui->comboBoxSerialportName->currentText());
+        m_serialPort->setPort(QSerialPortInfo::availablePorts()[ui->comboBoxSerialportName->currentIndex()]);
         // 获取波特率
         m_serialPort->setBaudRate(static_cast<QSerialPort::BaudRate>(ui->comboBoxBaudRate->currentData().toInt()));
         // 获取数据位

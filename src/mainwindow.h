@@ -31,6 +31,8 @@ private:
     int AddCommandList(int index);
     void InitialSerialPortSettings();
 
+    void SerialPortDetails(int index);
+
     void setupCommandListWidget();
     void SetupDefaultSerialPortSettings();
 
