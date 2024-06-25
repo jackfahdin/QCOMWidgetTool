@@ -3,14 +3,17 @@
 
 #include <QtSerialPort/QSerialPort>
 #include <QtSerialPort/QSerialPortInfo>
+#include <QObject>
 
 
-class SerialPortManager
+class SerialPortManager : public QObject
 {
+    Q_OBJECT
+
 public:
     SerialPortManager();
 
-    QStringList GetSerialPortList();
+    void GetSerialPortList();
     bool OpenSerialPort(QString portName,
                         QSerialPort::BaudRate baudRate,
                         QSerialPort::DataBits bit,
@@ -19,10 +22,16 @@ public:
                         QSerialPort::FlowControl control);
     void CloseSerialPort();
     void WriteData(const QByteArray &data);
-    void ReadData();
+    QByteArray ReadData();
+    void SetupDefaultSerialPortSettings();
 
 private :
     QSerialPort *m_serialPort;
+
+
+signals:
+    void ReadyRead();
+    void GettingSerialPortList(QStringList serialPortList);
 };
 
 #endif // SERIALPORTMANAGER_H

@@ -92,14 +92,14 @@
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_6">
               <item>
-               <widget class="QLabel" name="labelBit">
+               <widget class="QLabel" name="labelData">
                 <property name="text">
                  <string>数据位：</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QComboBox" name="comboBoxBit">
+               <widget class="QComboBox" name="comboBoxData">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                   <horstretch>0</horstretch>

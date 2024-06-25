@@ -2,7 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "serialportmanager.h"
+#include <QSerialPort>
+#include <QSerialPortInfo>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -18,18 +19,28 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    void InitSerialPort();
-
 protected:
     void resizeEvent(QResizeEvent *event) override;
 
 private:
     Ui::MainWindow *ui;
 
+    int AddCommandList(int index);
+    void InitialSerialPortSettings();
+
     void setupCommandListWidget();
+    void SetupDefaultSerialPortSettings();
 
     QWidget *templateRow;
 
-    SerialPortManager m_serialPortManager;
+    QSerialPort *m_serialPort;
+
+private slots:
+    // void filterSerialPortList(QStringList serialPortList);
+    void SerialPortSwitch();
+    void SendData();
+    void ReceiveData();
+    // void ClearData();
+    // void SaveReceiveData();
 };
 #endif // MAINWINDOW_H
