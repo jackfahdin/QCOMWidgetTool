@@ -178,6 +178,10 @@
               <property name="text">
                <string>OpenSerialPort</string>
               </property>
+              <property name="icon">
+               <iconset resource="../QCOMWidgetTool.qrc">
+                <normaloff>:/Image/LightingDown.png</normaloff>:/Image/LightingDown.png</iconset>
+              </property>
              </widget>
             </item>
            </layout>
@@ -647,6 +651,8 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
- <resources/>
+ <resources>
+  <include location="../QCOMWidgetTool.qrc"/>
+ </resources>
  <connections/>
 </ui>

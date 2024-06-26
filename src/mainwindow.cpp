@@ -183,6 +183,8 @@ void MainWindow::SerialPortSwitch()
             ui->pushButtonSerialPortSwitch->setText(tr("CloseSerialPort"));
 
             connect(m_serialPort, &QSerialPort::readyRead, this, &MainWindow::ReceiveLineData);
+            QIcon icon = QIcon(":/Image/LightingUp.png");
+            ui->pushButtonSerialPortSwitch->setIcon(icon);
 
             SerialPortLogOutput("打开串口" + ui->comboBoxSerialportName->currentText() + "\n", "info");
         } else {
@@ -198,7 +200,8 @@ void MainWindow::SerialPortSwitch()
         ui->comboBoxControl->setEnabled(true);
         ui->pushButtonSend->setEnabled(false);
         ui->pushButtonSerialPortSwitch->setText(tr("OpenSerialPort"));
-
+        QIcon icon = QIcon(":/Image/LightingDown.png");
+        ui->pushButtonSerialPortSwitch->setIcon(icon);
         disconnect(m_serialPort, &QSerialPort::readyRead, this, &MainWindow::ReceiveLineData);
 
         SerialPortLogOutput("关闭串口" + ui->comboBoxSerialportName->currentText() + "\n", "info");

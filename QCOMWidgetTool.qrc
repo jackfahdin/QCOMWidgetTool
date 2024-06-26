@@ -1,5 +1,7 @@
 <RCC>
     <qresource prefix="/">
         <file>Image/AppIcon.ico</file>
+        <file>Image/LightingDown.png</file>
+        <file>Image/LightingUp.png</file>
     </qresource>
 </RCC>
