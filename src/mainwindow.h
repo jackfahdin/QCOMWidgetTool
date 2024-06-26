@@ -34,11 +34,13 @@ private:
     int AddCommandList(int index);
     void InitialSerialPortSettings();
     void RefreshSerialPortName();
+    void CheckIsOpenSerialPortName();
 
     void setupCommandListWidget();
     void SetupDefaultSerialPortSettings();
 
     void SerialPortLogOutput(QString str, QString level);
+    void CloseSerialPort();
 
     QWidget *templateRow;
 
@@ -47,6 +49,7 @@ private:
     USBPlugAndUnplug *m_usbPlugAndUnplug = nullptr;
 
     CustomTextEdit *customTextEdit;
+    QString isOpenSerialPortName = NULL;
 
 private slots:
     void SerialPortSwitch();

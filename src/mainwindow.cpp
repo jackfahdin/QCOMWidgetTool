@@ -5,6 +5,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QFileDialog>
+#include <QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -29,7 +30,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->pushButtonSaveLog, &QPushButton::clicked, this, &MainWindow::SaveReceiveData);
 
     connect(m_usbPlugAndUnplug, &USBPlugAndUnplug::UsbSerialPortArrival, this, &MainWindow::RefreshSerialPortName);
-    connect(m_usbPlugAndUnplug, &USBPlugAndUnplug::UsbSerialPortRemoveCompleft, this, &MainWindow::RefreshSerialPortName);
+    connect(m_usbPlugAndUnplug, &USBPlugAndUnplug::UsbSerialPortRemoveCompleft, this, &MainWindow::CheckIsOpenSerialPortName);
 
     customTextEdit = new CustomTextEdit();
     customTextEdit->setStyleSheet("color: rgb(0, 0, 255)");
@@ -46,6 +47,14 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete ui;
+    if(m_usbPlugAndUnplug) {
+        delete m_usbPlugAndUnplug;
+    }
+
+    if(m_serialPort) {
+        delete m_serialPort;
+        m_serialPort = nullptr;
+    }
 }
 
 int MainWindow::AddCommandList(int index)
@@ -71,6 +80,16 @@ int MainWindow::AddCommandList(int index)
     }
 
     return 0;
+}
+
+void MainWindow::CheckIsOpenSerialPortName()
+{
+    if(!isOpenSerialPortName.isEmpty() && m_serialPort->portName() == isOpenSerialPortName) {
+        QMessageBox::critical(this, "错误提示", "串口打开失败!!! \r\n该串口可能被拔出");
+        CloseSerialPort();
+    }
+
+    RefreshSerialPortName();
 }
 
 void MainWindow::RefreshSerialPortName()
@@ -186,26 +205,34 @@ void MainWindow::SerialPortSwitch()
             QIcon icon = QIcon(":/Image/LightingUp.png");
             ui->pushButtonSerialPortSwitch->setIcon(icon);
 
+            isOpenSerialPortName = serialPortInfos[ui->comboBoxSerialportName->currentIndex()].portName();
+
             SerialPortLogOutput("打开串口" + ui->comboBoxSerialportName->currentText() + "\n", "info");
         } else {
             SerialPortLogOutput("打开串口" + ui->comboBoxSerialportName->currentText() + "失败,串口可能不存在或被占用\n", "error");
         }
     } else if(ui->pushButtonSerialPortSwitch->text() == tr("CloseSerialPort")) {
-        m_serialPort->close();
-        ui->comboBoxSerialportName->setEnabled(true);
-        ui->comboBoxBaudRate->setEnabled(true);
-        ui->comboBoxData->setEnabled(true);
-        ui->comboBoxParity->setEnabled(true);
-        ui->comboBoxStop->setEnabled(true);
-        ui->comboBoxControl->setEnabled(true);
-        ui->pushButtonSend->setEnabled(false);
-        ui->pushButtonSerialPortSwitch->setText(tr("OpenSerialPort"));
-        QIcon icon = QIcon(":/Image/LightingDown.png");
-        ui->pushButtonSerialPortSwitch->setIcon(icon);
-        disconnect(m_serialPort, &QSerialPort::readyRead, this, &MainWindow::ReceiveLineData);
-
-        SerialPortLogOutput("关闭串口" + ui->comboBoxSerialportName->currentText() + "\n", "info");
+        CloseSerialPort();
     }
+}
+
+void MainWindow::CloseSerialPort()
+{
+    isOpenSerialPortName = NULL;
+    m_serialPort->close();
+    ui->comboBoxSerialportName->setEnabled(true);
+    ui->comboBoxBaudRate->setEnabled(true);
+    ui->comboBoxData->setEnabled(true);
+    ui->comboBoxParity->setEnabled(true);
+    ui->comboBoxStop->setEnabled(true);
+    ui->comboBoxControl->setEnabled(true);
+    ui->pushButtonSend->setEnabled(false);
+    ui->pushButtonSerialPortSwitch->setText(tr("OpenSerialPort"));
+    QIcon icon = QIcon(":/Image/LightingDown.png");
+    ui->pushButtonSerialPortSwitch->setIcon(icon);
+    disconnect(m_serialPort, &QSerialPort::readyRead, this, &MainWindow::ReceiveLineData);
+
+    SerialPortLogOutput("关闭串口" + ui->comboBoxSerialportName->currentText() + "\n", "info");
 }
 
 void MainWindow::SendStrData()
