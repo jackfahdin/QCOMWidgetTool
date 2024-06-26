@@ -48,7 +48,8 @@ private slots:
     void SerialPortSwitch();
     void SendStrData();
     void SendATData();
-    void ReceiveData();
+    void ReceiveAllData();
+    void ReceiveLineData();
     void ClearData();
     void SaveReceiveData();
 };

@@ -171,7 +171,7 @@ void MainWindow::SerialPortSwitch()
             ui->pushButtonSend->setEnabled(true);
             ui->pushButtonSerialPortSwitch->setText(tr("CloseSerialPort"));
 
-            connect(m_serialPort, &QSerialPort::readyRead, this, &MainWindow::ReceiveData);
+            connect(m_serialPort, &QSerialPort::readyRead, this, &MainWindow::ReceiveLineData);
 
             SerialPortLogOutput("打开串口" + ui->comboBoxSerialportName->currentText() + "\n", "info");
         } else {
@@ -188,7 +188,7 @@ void MainWindow::SerialPortSwitch()
         ui->pushButtonSend->setEnabled(false);
         ui->pushButtonSerialPortSwitch->setText(tr("OpenSerialPort"));
 
-        disconnect(m_serialPort, &QSerialPort::readyRead, this, &MainWindow::ReceiveData);
+        disconnect(m_serialPort, &QSerialPort::readyRead, this, &MainWindow::ReceiveLineData);
 
         SerialPortLogOutput("关闭串口" + ui->comboBoxSerialportName->currentText() + "\n", "info");
     }
@@ -217,7 +217,7 @@ void MainWindow::SendATData()
     m_serialPort->write(byteArray + "\r\n");
 }
 
-void MainWindow::ReceiveData()
+void MainWindow::ReceiveAllData()
 {
     QByteArray receiveBuf = m_serialPort->readAll();
     QDateTime currentDateTime = QDateTime::currentDateTime();
@@ -250,6 +250,43 @@ void MainWindow::ReceiveData()
 
     if(ui->checkBoxEnter->checkState() == 2) {
         ui->textEditOutput->insertPlainText("\n");
+    }
+}
+
+void MainWindow::ReceiveLineData()
+{
+    QByteArray receiveBuf;
+    QDateTime currentDateTime = QDateTime::currentDateTime();
+    QString currentTime = currentDateTime.toString("[yyyy-MM-dd hh:mm:ss.zzz]: ");
+
+    while (m_serialPort->canReadLine()) {
+        receiveBuf = m_serialPort->readLine();
+        QString str = QString::fromUtf8(receiveBuf);
+
+        if (ui->checkBoxShowTime->checkState() == 2) {
+            ui->textEditOutput->insertPlainText(currentTime);
+        }
+
+        if(ui->checkBoxShowRN->checkState() == 2) {
+            str += "\\r\\n";
+        }
+
+        if(ui->checkBoxShowHex->checkState() == 2) {
+            QString hexString;
+            for(auto i = str.begin(); i != str.end(); ++i) {
+                QChar c = *i;
+                hexString += QString("%1 ").arg(static_cast<quint8>(c.unicode()), 2, 16, QChar('0'));
+            }
+            ui->textEditOutput->insertPlainText(hexString.trimmed());
+        } else {
+            ui->textEditOutput->insertPlainText(str);
+        }
+
+        ui->textEditOutput->moveCursor(QTextCursor::End);
+
+        if(ui->checkBoxEnter->checkState() == 2) {
+            ui->textEditOutput->insertPlainText("\n");
+        }
     }
 }
 
