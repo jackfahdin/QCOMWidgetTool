@@ -24,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent)
     qApp->installNativeEventFilter(m_usbPlugAndUnplug);
     // 打开串口
     connect(ui->pushButtonSerialPortSwitch, &QPushButton::clicked, this, &MainWindow::SerialPortSwitch);
-    connect(ui->pushButtonSend, &QPushButton::clicked, this, &MainWindow::SendData);
+    connect(ui->pushButtonSend, &QPushButton::clicked, this, &MainWindow::SendATData);
     connect(ui->pushButtonClearInfo, &QPushButton::clicked, this, &MainWindow::ClearData);
     connect(ui->pushButtonSaveLog, &QPushButton::clicked, this, &MainWindow::SaveReceiveData);
 
@@ -194,7 +194,7 @@ void MainWindow::SerialPortSwitch()
     }
 }
 
-void MainWindow::SendData()
+void MainWindow::SendStrData()
 {
     QString sendMsg = ui->textEditInputString->toPlainText();
 
@@ -205,6 +205,16 @@ void MainWindow::SendData()
 
 
     m_serialPort->write(sendMsg.toUtf8());
+}
+
+void MainWindow::SendATData()
+{
+    QByteArray byteArray = ui->textEditInputString->toPlainText().toLatin1();
+
+    if(byteArray.isEmpty())
+        return;
+
+    m_serialPort->write(byteArray + "\r\n");
 }
 
 void MainWindow::ReceiveData()
