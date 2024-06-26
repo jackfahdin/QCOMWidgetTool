@@ -7,7 +7,9 @@
 #include <QDateTime>
 #include <QFile>
 #include <QFileInfo>
+#include <QKeyEvent>
 #include "usbplugandunplug.h"
+#include "customtextedit.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -44,6 +46,8 @@ private:
 
     USBPlugAndUnplug *m_usbPlugAndUnplug = nullptr;
 
+    CustomTextEdit *customTextEdit;
+
 private slots:
     void SerialPortSwitch();
     void SendStrData();
@@ -52,5 +56,6 @@ private slots:
     void ReceiveLineData();
     void ClearData();
     void SaveReceiveData();
+    void CheckForEnterKey();
 };
 #endif // MAINWINDOW_H

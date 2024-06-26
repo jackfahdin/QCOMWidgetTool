@@ -79,6 +79,7 @@ list(APPEND sources_files ${QRC_RESOURCES})
 qt_add_executable(${PROJECT_NAME}
     MANUAL_FINALIZATION
     ${sources_files}
+    src/customtextedit.h
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE

@@ -30,6 +30,17 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(m_usbPlugAndUnplug, &USBPlugAndUnplug::UsbSerialPortArrival, this, &MainWindow::RefreshSerialPortName);
     connect(m_usbPlugAndUnplug, &USBPlugAndUnplug::UsbSerialPortRemoveCompleft, this, &MainWindow::RefreshSerialPortName);
+
+    customTextEdit = new CustomTextEdit();
+    customTextEdit->setStyleSheet("color: rgb(0, 0, 255)");
+    customTextEdit->setFont(QFont("Microsoft YaHei UI", 11));
+    customTextEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    customTextEdit->setMaximumHeight(80);
+    ui->horizontalLayout_11->replaceWidget(ui->textEditInputString, customTextEdit);
+    delete ui->textEditInputString;
+    ui->textEditInputString = customTextEdit;
+
+    connect(customTextEdit, &CustomTextEdit::enterPressed, this, &MainWindow::SendATData);
 }
 
 MainWindow::~MainWindow()
@@ -210,11 +221,25 @@ void MainWindow::SendStrData()
 void MainWindow::SendATData()
 {
     QByteArray byteArray = ui->textEditInputString->toPlainText().toLatin1();
+    int ret = 0;
 
     if(byteArray.isEmpty())
         return;
 
-    m_serialPort->write(byteArray + "\r");
+    ret = m_serialPort->write(byteArray + "\r");
+    if(ret < 0)
+        SerialPortLogOutput("串口" + ui->comboBoxSerialportName->currentText() + "可能未打开\n", "info");
+}
+
+void MainWindow::CheckForEnterKey()
+{
+    QString text = ui->textEditInputString->toPlainText();
+    if (!text.isEmpty() && text.endsWith('\n')) {
+        // 文本以回车符结束，执行 SendATData 操作
+        SendATData();
+        // 清空文本编辑框
+        ui->textEditInputString->clear();
+    }
 }
 
 void MainWindow::ReceiveAllData()
